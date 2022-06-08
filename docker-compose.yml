@@ -1,0 +1,18 @@
+version: '3.4'
+services:
+        singapi:
+                build:
+                        context: CMU_SING_API
+                container_name: singapi
+                ports:
+                        - "60:80"
+                volumes:
+                        - /home/cnoc/logsSingAPI:/app/logs
+                        - /home/cnoc/webhookSing:/app/webhooksing
+                restart: always
+                env_file:
+                        - .env
+                environment:
+                        - TZ=Asia/Bangkok
+
+
