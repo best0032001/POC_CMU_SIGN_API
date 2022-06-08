@@ -1,4 +1,6 @@
 using CMU_SIGN_API.Model;
+using CMU_SIGN_API.Model.Interface;
+using CMU_SIGN_API.Model.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +31,7 @@ namespace CMU_SING_API
         {
             services.AddHttpClient();
             services.AddDbContext<ApplicationDBContext>(options => options.UseInMemoryDatabase(databaseName: "ApplicationDBContext").ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)));
+            services.AddScoped<IEmailRepository, EmailRepository>();
             services.AddControllers();
         }
 

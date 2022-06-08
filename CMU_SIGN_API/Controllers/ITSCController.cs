@@ -1,4 +1,6 @@
-﻿using CMU_SING_API.Model;
+﻿using CMU_SIGN_API.Model;
+using CMU_SIGN_API.Model.Interface;
+using CMU_SING_API.Model;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,13 +26,16 @@ namespace CMU_SING_API.Controllers
     {
         protected IHttpClientFactory _clientFactory;
         protected IWebHostEnvironment _env;
+        protected DateTime _timestart;
         protected ILogger<ITSCController> _logger;
         protected String _accesstoken = "";
+        protected IEmailRepository _emailRepository;
         public ITSCController()
         {
         }
         protected void loadConfig(ILogger<ITSCController> logger, IHttpClientFactory clientFactory, IWebHostEnvironment env)
         {
+            _timestart = DateTime.Now;
             _clientFactory = clientFactory;
             _env = env;
             _logger = logger;
@@ -81,6 +86,48 @@ namespace CMU_SING_API.Controllers
             else { _cmuaccount = "unauthorized"; }
             return _cmuaccount;
 
+        }
+
+        protected StatusCodeResult StatusErrorITSC(String cmuaccount, String action, Exception ex)
+        {
+            LogModel log = new LogModel();
+            log.ClientIp = "-";
+            log.appID = "-";
+            log.appIndex = "-";
+            log.cmuaccount = cmuaccount;
+            log.HttpCode = "500";
+            log.action = action;
+            log.level = "Error";
+            log.Timestamp = DateTime.Now;
+            log.logdate = DateTime.Now.ToString("MM/dd/yyyy HH:mm");
+            log.logdata = ex.Message + " " + ex.StackTrace.Replace("\\", "").Replace(":", "");
+            if (ex.InnerException != null)
+            {
+                log.logdata = log.logdata + " " + ex.InnerException.Message + " " + ex.InnerException.StackTrace.Replace("\\", "").Replace(":", "");
+            }
+            log.responseTime = (log.Timestamp - _timestart).TotalSeconds;
+            String errorText = log.logdate + " " + Newtonsoft.Json.JsonConvert.SerializeObject(log);
+            _logger.LogInformation(errorText);
+            String NOTI_ADMIN = Environment.GetEnvironmentVariable("NOTI_ADMIN");
+            _emailRepository.SendEmailAsync("POC SIGN", NOTI_ADMIN, "Error Alert", errorText, null);
+            return this.StatusCode(500);
+        }
+        protected ObjectResult StatusCodeITSC(String cmuaccount, String action, Int32 code, APIModel aPIModel)
+        {
+            LogModel log = new LogModel();
+            log.ClientIp = "-";
+            log.appID = "-";
+            log.appIndex = "-";
+            log.cmuaccount = cmuaccount;
+            log.HttpCode = "" + code;
+            log.action = action;
+            log.level = "Info";
+            log.Timestamp = DateTime.Now;
+            log.logdate = DateTime.Now.ToString("MM/dd/yyyy HH:mm");
+            log.logdata = "";
+            log.responseTime = (log.Timestamp - _timestart).TotalSeconds;
+            _logger.LogInformation(log.logdate + " " + Newtonsoft.Json.JsonConvert.SerializeObject(log));
+            return this.StatusCode(code, aPIModel);
         }
     }
 }

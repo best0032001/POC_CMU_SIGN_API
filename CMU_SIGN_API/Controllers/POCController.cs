@@ -1,5 +1,7 @@
 ﻿
 using CMU_SIGN_API.Model;
+using CMU_SIGN_API.Model.Entity;
+using CMU_SIGN_API.Model.Interface;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,19 +23,30 @@ namespace CMU_SING_API.Controllers
     [ApiController]
     public class POCController : ITSCController
     {
-        public POCController(ILogger<ITSCController> logger, IHttpClientFactory clientFactory, IWebHostEnvironment env)
+        private ApplicationDBContext _applicationDBContext;
+        public POCController(ILogger<ITSCController> logger, IHttpClientFactory clientFactory, IWebHostEnvironment env, ApplicationDBContext applicationDBContext, IEmailRepository emailRepository)
         {
             this.loadConfig(logger, clientFactory, env);
+            _applicationDBContext = applicationDBContext;
+            _emailRepository = emailRepository;
         }
 
         [HttpPost("v1/sign")]
         public async Task<IActionResult> sign(IFormFile filename, [FromHeader] String pass_phase, [FromHeader] String ref_id, [FromHeader] String sigfield, [FromHeader] String reason)
         {
+            String Cmuaccount = "";
+            APIModel aPIModel = new APIModel();
             try
             {
-                String Cmuaccount = "";
+               
                 Cmuaccount = await this.getCmuaccount();
                 if (Cmuaccount == "unauthorized") { return Unauthorized(); }
+
+                SignRequest signRequest= _applicationDBContext.signRequests.Where(w => w.ref_id == ref_id).FirstOrDefault();
+                if (signRequest != null)
+                {
+                    
+                }
 
                 String webhook = Environment.GetEnvironmentVariable("WEBHOOK");
                 MultipartFormDataContent multipartFormContent = new MultipartFormDataContent();
@@ -58,18 +71,18 @@ namespace CMU_SING_API.Controllers
                 {
                     responseString = await response.Content.ReadAsStringAsync();
                     SignModel signModel = JsonConvert.DeserializeObject<SignModel>(responseString);
-                    return Ok();
+                    return this.StatusCodeITSC(Cmuaccount, "sign", 200, aPIModel);
                 }
                 else
                 {
-
-                    String textReturn = "" + (int)response.StatusCode + " " + responseString;
-                    return Ok(textReturn);
+                    aPIModel.title= "" + (int)response.StatusCode + " " + responseString;
+                    return this.StatusCodeITSC(Cmuaccount, "sign", (int)response.StatusCode, aPIModel);
                 }
             }
             catch (Exception ex)
             {
-                return Ok(ex.StackTrace);
+              
+                return this.StatusErrorITSC(Cmuaccount, "sign", ex);
             }
 
 
