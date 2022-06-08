@@ -40,7 +40,7 @@ namespace CMU_SING_API.Controllers
                 Stream stream = new MemoryStream();
                 filename.CopyTo(stream);
                 var fileStreamContent = new StreamContent(stream);
-                multipartFormContent.Add(fileStreamContent, name: "pdf", fileName: "test.pdf");
+                multipartFormContent.Add(fileStreamContent, name: "pdf", fileName: filename.FileName);
 
                 multipartFormContent.Add(new StringContent("accesstoken"), this._accesstoken);
                 multipartFormContent.Add(new StringContent("pass_phase"), pass_phase);
