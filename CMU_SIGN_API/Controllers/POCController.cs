@@ -42,10 +42,19 @@ namespace CMU_SING_API.Controllers
                 Cmuaccount = await this.getCmuaccount();
                 if (Cmuaccount == "unauthorized") { return Unauthorized(); }
 
+                String ext = filename.FileName.Substring(filename.FileName.LastIndexOf('.'));
+
+                if (ext.ToLower() != "pdf")
+                {
+                    aPIModel.title = "เอกสารต้องเป็น File  PDF";
+                    return this.StatusCodeITSC(Cmuaccount, "sign", 400, aPIModel);
+                }
+
                 SignRequest signRequest= _applicationDBContext.signRequests.Where(w => w.ref_id == ref_id).FirstOrDefault();
                 if (signRequest != null)
                 {
-                    
+                    aPIModel.title = "ref_id ซ้ำ";
+                    return this.StatusCodeITSC(Cmuaccount, "sign", 400, aPIModel);
                 }
 
                 String webhook = Environment.GetEnvironmentVariable("WEBHOOK");
@@ -71,6 +80,12 @@ namespace CMU_SING_API.Controllers
                 {
                     responseString = await response.Content.ReadAsStringAsync();
                     SignModel signModel = JsonConvert.DeserializeObject<SignModel>(responseString);
+                    SignRequest _signRequest = new SignRequest();
+                    _signRequest.requestDate = DateTime.Now;
+                    _signRequest.ref_id = ref_id;
+                    _signRequest.filename_send = filename.FileName;
+                    _applicationDBContext.signRequests.Add(_signRequest);
+                    _applicationDBContext.SaveChanges();
                     return this.StatusCodeITSC(Cmuaccount, "sign", 200, aPIModel);
                 }
                 else
