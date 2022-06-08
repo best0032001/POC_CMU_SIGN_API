@@ -1,9 +1,9 @@
 version: '3.4'
 services:
-        singapi:
+        signapi:
                 build:
-                        context: CMU_SING_API
-                container_name: singapi
+                        context: CMU_SIGN_API
+                container_name: signapi
                 ports:
                         - "60:80"
                 volumes:
