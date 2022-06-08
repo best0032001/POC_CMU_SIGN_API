@@ -109,11 +109,11 @@ namespace CMU_SING_API.Controllers
         }
 
         [HttpPost("v1/webhook")]
-        public async Task<IActionResult> webhook()
+        public async Task<IActionResult> webhook([FromQuery]String ref_id, [FromQuery] String filename)
         {
             MemoryStream stream = new MemoryStream();
             await Request.Body.CopyToAsync(stream);
-            var file = new FormFile(stream, 0, stream.Length, null, "test.pdf")
+            var file = new FormFile(stream, 0, stream.Length, null, filename)
             {
                 Headers = new HeaderDictionary(),
                 ContentType = "application/pdf"
