@@ -10,6 +10,8 @@ namespace CMU_SIGN_API.Model.Entity
         public int SignRequestId { get; set; }
         public string ref_id { get; set; }
 
+        public string cmuaccount { get; set; }
+
         public DateTime requestDate { get; set; }
         public DateTime? receiveDate { get; set; }
         public string filename_send { get; set; }

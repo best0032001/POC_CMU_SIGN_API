@@ -7,7 +7,7 @@ namespace CMU_SIGN_API.Model
 {
     public class LogModel
     {
-        [Date(Name = "@timestamp")]
+      
         public DateTime Timestamp { get; set; }
         public String ClientIp { get; set; }
         public String UserType { get; set; }

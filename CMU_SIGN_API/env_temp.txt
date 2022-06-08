@@ -22,3 +22,5 @@ MAIL_SENDER="x"
 MAIL_REPLY="x"
 MAIL_PORT="x"
 MAIL_SERVER="x"
+
+SINGClientID="x"
