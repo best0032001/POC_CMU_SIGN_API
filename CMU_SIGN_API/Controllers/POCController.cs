@@ -44,7 +44,7 @@ namespace CMU_SING_API.Controllers
                     data = br.ReadBytes((int)filename.OpenReadStream().Length);
 
                 ByteArrayContent bytes = new ByteArrayContent(data);
-                
+
 
                 String ClientID = Environment.GetEnvironmentVariable("SINGClientID");
 
@@ -73,7 +73,7 @@ namespace CMU_SING_API.Controllers
                 //filename.CopyTo(stream);
                 //var fileStreamContent = new StreamContent(stream);
                 bytes.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
-               
+
                 multipartFormContent.Add(bytes, name: "pdf", fileName: _filename);
                 multipartFormContent.Add(new StringContent(getTokenFormHeader()), "accesstoken");
                 multipartFormContent.Add(new StringContent(pass_phase), "pass_phase");
@@ -85,7 +85,7 @@ namespace CMU_SING_API.Controllers
 
 
                 String SIGNAPI = Environment.GetEnvironmentVariable("SINGAPI");
-               
+
                 HttpClient httpClient = _clientFactory.CreateClient();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + ClientID);
@@ -101,7 +101,7 @@ namespace CMU_SING_API.Controllers
                     if (signModel.status == "false")
                     {
                         aPIModel.title = responseString;
-                        return this.StatusCodeITSC(_cmuaccount, "sign",400, aPIModel);
+                        return this.StatusCodeITSC(_cmuaccount, "sign", 400, aPIModel);
                     }
                     SignRequest _signRequest = new SignRequest();
                     _signRequest.requestDate = DateTime.Now;
@@ -151,16 +151,27 @@ namespace CMU_SING_API.Controllers
                 _fname = fname["name"];
                 APIModel aPIModel = new APIModel();
                 String fileName = _fname;
-                
-                if (fileName.IndexOf("/app")>0)
+
+                if (fileName.IndexOf("/app") > 0)
                 {
-                    fileName = fileName.Substring(fileName.IndexOf("/app")+5,44);
+                    fileName = fileName.Substring(fileName.IndexOf("/app") + 5, 44);
+                }
+
+                List<SignRequest> SignRequestList = _applicationDBContext.SignRequests.ToList();
+                if (SignRequestList.Count == 0)
+                {
+                    aPIModel.title = "SignRequestList =0 ";
+                    return this.StatusCodeITSC("SignRequestList =0 ", "webhook", 400, aPIModel);
+                }
+                foreach (SignRequest sign  in SignRequestList)
+                {
+                    debug = debug + sign.filename_receive;
                 }
                 SignRequest signRequest = _applicationDBContext.SignRequests.Where(w => w.filename_receive == fileName.Trim()).FirstOrDefault();
                 if (signRequest == null)
                 {
                     aPIModel.title = "fileName not found";
-                    return this.StatusCodeITSC("fileName : " + fileName+ " fname count:"+ fname.Count+ " debug :"+ debug, "webhook", 400, aPIModel);
+                    return this.StatusCodeITSC("fileName : " + fileName + " fname count:" + fname.Count + " debug :" + debug, "webhook", 400, aPIModel);
                 }
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "webhooksing");
                 FileModel fileModel = this.SaveFile(path, files, 100);
