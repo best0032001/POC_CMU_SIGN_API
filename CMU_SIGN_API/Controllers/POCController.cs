@@ -170,6 +170,7 @@ namespace CMU_SING_API.Controllers
                     _signRequest.cmuaccount = "-";
                     _signRequest.file = files;
                     DataCache.SignRequests.Add(_signRequest);
+                    aPIModel.data = _signRequest;
                 }
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "webhooksing");
                 FileModel fileModel = this.SaveFile(path, files, 100);
@@ -178,8 +179,6 @@ namespace CMU_SING_API.Controllers
                     aPIModel.title = " Server Save File Error";
                     return this.StatusCodeITSC("fileName : " + fileName, "webhook", 503, aPIModel);
                 }
-               
-                aPIModel.data = signRequest;
                 aPIModel.title = "success";
                 return this.StatusCodeITSC(signRequest.cmuaccount, "webhook", 200, aPIModel);
             }
