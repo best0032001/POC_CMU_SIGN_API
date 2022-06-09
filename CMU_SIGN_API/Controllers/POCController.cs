@@ -41,12 +41,12 @@ namespace CMU_SING_API.Controllers
 
                 String ClientID = Environment.GetEnvironmentVariable("ClientID");
 
-                _cmuaccount = await this.getCmuaccount();
-                if (_cmuaccount == "unauthorized") { return Unauthorized(); }
+            //    _cmuaccount = await this.getCmuaccount();
+            //    if (_cmuaccount == "unauthorized") { return Unauthorized(); }
 
                 String ext = filename.FileName.Substring(filename.FileName.LastIndexOf('.'));
 
-                if (ext.ToLower() != "pdf")
+                if (ext.ToLower() != ".pdf")
                 {
                     aPIModel.title = "เอกสารต้องเป็น File  PDF";
                     return this.StatusCodeITSC(_cmuaccount, "sign", 400, aPIModel);
