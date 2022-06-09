@@ -39,7 +39,7 @@ namespace CMU_SING_API.Controllers
             try
             {
 
-                String ClientID = Environment.GetEnvironmentVariable("ClientID");
+                String ClientID = Environment.GetEnvironmentVariable("SINGClientID");
 
                 _cmuaccount = await this.getCmuaccount();
                 if (_cmuaccount == "unauthorized") { return Unauthorized(); }
