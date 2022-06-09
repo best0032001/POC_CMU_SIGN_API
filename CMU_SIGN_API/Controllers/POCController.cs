@@ -65,13 +65,13 @@ namespace CMU_SING_API.Controllers
                 filename.CopyTo(stream);
                 var fileStreamContent = new StreamContent(stream);
                 multipartFormContent.Add(fileStreamContent, name: "pdf", fileName: filename.FileName);
-                multipartFormContent.Add(new StringContent("accesstoken"), getTokenFormHeader());
-                multipartFormContent.Add(new StringContent("pass_phase"), pass_phase);
-                multipartFormContent.Add(new StringContent("ref_id"), ref_id);
-                multipartFormContent.Add(new StringContent("sigfield"), sigfield);
-                multipartFormContent.Add(new StringContent("reason"), reason);
-                multipartFormContent.Add(new StringContent("webhook"), webhook);
-                multipartFormContent.Add(new StringContent("signature_image"), "no");
+                multipartFormContent.Add(new StringContent(getTokenFormHeader()), "accesstoken");
+                multipartFormContent.Add(new StringContent(pass_phase), "pass_phase");
+                multipartFormContent.Add(new StringContent(ref_id), "ref_id");
+                multipartFormContent.Add(new StringContent(sigfield), "sigfield");
+                multipartFormContent.Add(new StringContent(reason), "reason");
+                multipartFormContent.Add(new StringContent(webhook), "webhook");
+          
 
 
                 String SIGNAPI = Environment.GetEnvironmentVariable("SINGAPI");
