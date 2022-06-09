@@ -155,7 +155,7 @@ namespace CMU_SING_API.Controllers
                 
                 if (fileName.IndexOf("/app")>0)
                 {
-                    fileName = fileName.Substring(fileName.IndexOf("/app")+4,44);
+                    fileName = fileName.Substring(fileName.IndexOf("/app")+5,44);
                 }
                 SignRequest signRequest = _applicationDBContext.SignRequests.Where(w => w.filename_receive == fileName).FirstOrDefault();
                 if (signRequest == null)
