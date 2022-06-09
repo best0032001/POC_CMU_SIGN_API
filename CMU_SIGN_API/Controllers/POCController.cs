@@ -159,14 +159,14 @@ namespace CMU_SING_API.Controllers
                     fileName = fileName.Substring(fileName.IndexOf("/app") + 5, 44);
                 }
 
-                SignRequest _signRequest = DataCache.SignRequests.Where(w => w.filename_receive == fileName.Trim()).FirstOrDefault();
+                SignRequest _signRequest = DataCache.SignRequests.Where(w => w.filename_receive == files.FileName).FirstOrDefault();
                 if (_signRequest == null)
                 {
                     _signRequest = new SignRequest();
                     _signRequest.requestDate = DateTime.Now;
                     _signRequest.ref_id = "-";
                     _signRequest.filename_send = "-";
-                    _signRequest.filename_receive = fileName;
+                    _signRequest.filename_receive = files.FileName;
                     _signRequest.cmuaccount = "-";
                     _signRequest.file = files;
                     DataCache.SignRequests.Add(_signRequest);
