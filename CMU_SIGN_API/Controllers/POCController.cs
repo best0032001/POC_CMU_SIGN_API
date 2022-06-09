@@ -59,14 +59,6 @@ namespace CMU_SING_API.Controllers
                     aPIModel.title = "เอกสารต้องเป็น File  PDF";
                     return this.StatusCodeITSC(_cmuaccount, "sign", 400, aPIModel);
                 }
-
-                SignRequest signRequest = _applicationDBContext.SignRequests.Where(w => w.ref_id == ref_id).FirstOrDefault();
-                if (signRequest != null)
-                {
-                    aPIModel.title = "ref_id ซ้ำ";
-                    return this.StatusCodeITSC(_cmuaccount, "sign", 400, aPIModel);
-                }
-
                 String _filename = filename.FileName;
                 String webhook = Environment.GetEnvironmentVariable("WEBHOOK");
                 MultipartFormDataContent multipartFormContent = new MultipartFormDataContent();
@@ -109,7 +101,7 @@ namespace CMU_SING_API.Controllers
                     {
                         List<IFormFile> Attachment = new List<IFormFile>();
                         Attachment.Add(_signRequest.file);
-                        _emailRepository.SendEmailAsync("POC_CMU_SIGN_API", signRequest.cmuaccount, "เอกสาร " + signRequest.filename_send + " digital signature เสร็จสิ้น ", "", Attachment);
+                        _emailRepository.SendEmailAsync("POC_CMU_SIGN_API", _cmuaccount, "เอกสาร " + filename.FileName + " digital signature เสร็จสิ้น ", "", Attachment);
                     }
                     aPIModel.data = signModel;
                     aPIModel.title = "success";
