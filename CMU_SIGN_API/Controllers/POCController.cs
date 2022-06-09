@@ -152,6 +152,11 @@ namespace CMU_SING_API.Controllers
                 _fname = fname["name"];
                 APIModel aPIModel = new APIModel();
                 String fileName = _fname;
+                
+                if (fileName.IndexOf("/app")>0)
+                {
+                    fileName = fileName.Substring(fileName.IndexOf("/app")+4,44);
+                }
                 SignRequest signRequest = _applicationDBContext.SignRequests.Where(w => w.filename_receive == fileName).FirstOrDefault();
                 if (signRequest == null)
                 {
