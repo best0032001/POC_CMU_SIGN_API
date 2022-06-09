@@ -80,8 +80,16 @@ namespace CMU_SING_API.Controllers
                 var responseString = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
                 {
+
+
                     responseString = await response.Content.ReadAsStringAsync();
                     SignModel signModel = JsonConvert.DeserializeObject<SignModel>(responseString);
+
+                    if (signModel.status == "false")
+                    {
+                        aPIModel.title = responseString;
+                        return this.StatusCodeITSC(_cmuaccount, "sign",400, aPIModel);
+                    }
                     SignRequest _signRequest = new SignRequest();
                     _signRequest.requestDate = DateTime.Now;
                     _signRequest.ref_id = ref_id;
