@@ -148,7 +148,6 @@ namespace CMU_SING_API.Controllers
                 {
                     debug = debug + text;
                 }
-                
                 _fname = fname["name"];
                 APIModel aPIModel = new APIModel();
                 String fileName = _fname;
@@ -157,11 +156,11 @@ namespace CMU_SING_API.Controllers
                 {
                     fileName = fileName.Substring(fileName.IndexOf("/app")+5,44);
                 }
-                SignRequest signRequest = _applicationDBContext.SignRequests.Where(w => w.filename_receive == fileName).FirstOrDefault();
+                SignRequest signRequest = _applicationDBContext.SignRequests.Where(w => w.filename_receive == fileName.Trim()).FirstOrDefault();
                 if (signRequest == null)
                 {
                     aPIModel.title = "fileName not found";
-                    return this.StatusCodeITSC("fileName : " + fileName+ "fname count:"+ fname.Count+ " debug :"+ debug, "webhook", 400, aPIModel);
+                    return this.StatusCodeITSC("fileName : " + fileName+ " fname count:"+ fname.Count+ " debug :"+ debug, "webhook", 400, aPIModel);
                 }
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "webhooksing");
                 FileModel fileModel = this.SaveFile(path, files, 100);
