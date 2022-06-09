@@ -121,7 +121,7 @@ namespace CMU_SING_API.Controllers
         }
 
         [HttpPost("v1/webhook")]
-        public async Task<IActionResult> webhook(IFormFile files)
+        public async Task<IActionResult> webhook(IFormFile files, IFormCollection fname)
         {
             try
             {
@@ -137,7 +137,6 @@ namespace CMU_SING_API.Controllers
                     return this.StatusCodeITSC("files.Length==0", "webhook", 400, aPIModel);
                 }
                 SignRequest _signRequest = new SignRequest();
-                _signRequest = new SignRequest();
                 _signRequest.requestDate = DateTime.Now;
                 _signRequest.ref_id = "-";
                 _signRequest.filename_send = "-";
