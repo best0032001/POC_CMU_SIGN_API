@@ -159,10 +159,10 @@ namespace CMU_SING_API.Controllers
                     fileName = fileName.Substring(fileName.IndexOf("/app") + 5, 44);
                 }
 
-                SignRequest signRequest = DataCache.SignRequests.Where(w => w.filename_receive == fileName.Trim()).FirstOrDefault();
-                if (signRequest == null)
+                SignRequest _signRequest = DataCache.SignRequests.Where(w => w.filename_receive == fileName.Trim()).FirstOrDefault();
+                if (_signRequest == null)
                 {
-                    SignRequest _signRequest = new SignRequest();
+                    _signRequest = new SignRequest();
                     _signRequest.requestDate = DateTime.Now;
                     _signRequest.ref_id = "-";
                     _signRequest.filename_send = "-";
@@ -180,7 +180,7 @@ namespace CMU_SING_API.Controllers
                     return this.StatusCodeITSC("fileName : " + fileName, "webhook", 503, aPIModel);
                 }
                 aPIModel.title = "success";
-                return this.StatusCodeITSC(signRequest.cmuaccount, "webhook", 200, aPIModel);
+                return this.StatusCodeITSC("-", "webhook", 200, aPIModel);
             }
             catch (Exception ex)
             {
