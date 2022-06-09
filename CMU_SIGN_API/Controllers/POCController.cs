@@ -141,6 +141,13 @@ namespace CMU_SING_API.Controllers
             String _fname = "";
             try
             {
+
+                String debug = "";
+                List<String> list = fname.Keys.ToList();
+                foreach (String text in list)
+                {
+                    debug = debug + text;
+                }
                 _fname = fname["fname"];
                 APIModel aPIModel = new APIModel();
                 String fileName = _fname;
@@ -148,7 +155,7 @@ namespace CMU_SING_API.Controllers
                 if (signRequest == null)
                 {
                     aPIModel.title = "fileName not found";
-                    return this.StatusCodeITSC("fileName : " + fileName, "webhook", 400, aPIModel);
+                    return this.StatusCodeITSC("fileName : " + fileName+ "fname count"+ fname.Count+ "debug "+ debug, "webhook", 400, aPIModel);
                 }
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "webhooksing");
                 FileModel fileModel = this.SaveFile(path, files, 100);
