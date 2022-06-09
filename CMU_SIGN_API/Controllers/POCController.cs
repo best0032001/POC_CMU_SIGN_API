@@ -141,7 +141,17 @@ namespace CMU_SING_API.Controllers
             String _fname = "";
             try
             {
-
+                APIModel aPIModel = new APIModel();
+                if (files == null)
+                {
+                    aPIModel.title = "files =null ";
+                    return this.StatusCodeITSC("files =null ", "webhook", 400, aPIModel);
+                }
+                if (files.Length==0)
+                {
+                    aPIModel.title = "files.Length==0 ";
+                    return this.StatusCodeITSC("files.Length==0", "webhook", 400, aPIModel);
+                }
                 String debug = "";
                 List<String> list = fname.Keys.ToList();
                 foreach (String text in list)
@@ -149,7 +159,7 @@ namespace CMU_SING_API.Controllers
                     debug = debug + text;
                 }
                 _fname = fname["name"];
-                APIModel aPIModel = new APIModel();
+             
                 String fileName = _fname;
 
                 if (fileName.IndexOf("/app") > 0)
