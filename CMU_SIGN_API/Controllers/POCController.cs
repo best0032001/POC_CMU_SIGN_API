@@ -71,6 +71,8 @@ namespace CMU_SING_API.Controllers
                 multipartFormContent.Add(new StringContent("sigfield"), sigfield);
                 multipartFormContent.Add(new StringContent("reason"), reason);
                 multipartFormContent.Add(new StringContent("webhook"), webhook);
+                multipartFormContent.Add(new StringContent("signature_image"), "no");
+
 
                 String SIGNAPI = Environment.GetEnvironmentVariable("SINGAPI");
                 HttpClient httpClient = _clientFactory.CreateClient();
