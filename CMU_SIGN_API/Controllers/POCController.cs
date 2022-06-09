@@ -157,7 +157,7 @@ namespace CMU_SING_API.Controllers
             }
             catch (Exception ex)
             {
-                return this.StatusErrorITSC(files.FileName, "webhook", ex);
+                return this.StatusErrorITSC("-", "webhook", ex);
             }
         }
     }
