@@ -2,6 +2,7 @@
 using CMU_SIGN_API.Model;
 using CMU_SIGN_API.Model.Entity;
 using CMU_SIGN_API.Model.Interface;
+using CMU_SING_API.Model;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -109,8 +110,7 @@ namespace CMU_SING_API.Controllers
                     _signRequest.filename_send = filename.FileName;
                     _signRequest.filename_receive = signModel.filename;
                     _signRequest.cmuaccount = _cmuaccount;
-                    _applicationDBContext.SignRequests.Add(_signRequest);
-                    _applicationDBContext.SaveChanges();
+                    DataCache.SignRequests.Add(_signRequest);
                     aPIModel.data = signModel;
                     aPIModel.title = "success";
                     return this.StatusCodeITSC(_cmuaccount, "sign", 200, aPIModel);
@@ -157,17 +157,17 @@ namespace CMU_SING_API.Controllers
                     fileName = fileName.Substring(fileName.IndexOf("/app") + 5, 44);
                 }
 
-                List<SignRequest> SignRequestList = _applicationDBContext.SignRequests.ToList();
+                List<SignRequest> SignRequestList = DataCache.SignRequests;
                 if (SignRequestList.Count == 0)
                 {
                     aPIModel.title = "SignRequestList =0 ";
                     return this.StatusCodeITSC("SignRequestList =0 ", "webhook", 400, aPIModel);
                 }
-                foreach (SignRequest sign  in SignRequestList)
+                foreach (SignRequest sign  in DataCache.SignRequests)
                 {
                     debug = debug + sign.filename_receive;
                 }
-                SignRequest signRequest = _applicationDBContext.SignRequests.Where(w => w.filename_receive == fileName.Trim()).FirstOrDefault();
+                SignRequest signRequest = DataCache.SignRequests.Where(w => w.filename_receive == fileName.Trim()).FirstOrDefault();
                 if (signRequest == null)
                 {
                     aPIModel.title = "fileName not found";

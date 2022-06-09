@@ -1,6 +1,7 @@
 using CMU_SIGN_API.Model;
 using CMU_SIGN_API.Model.Interface;
 using CMU_SIGN_API.Model.Repository;
+using CMU_SING_API.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -46,7 +47,7 @@ namespace CMU_SING_API
             app.UseRouting();
 
             app.UseAuthorization();
-
+            DataCache.SignRequests = new List<CMU_SIGN_API.Model.Entity.SignRequest>();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
