@@ -104,13 +104,13 @@ namespace CMU_SING_API.Controllers
                         aPIModel.title = responseString;
                         return this.StatusCodeITSC(_cmuaccount, "sign", 400, aPIModel);
                     }
-                    SignRequest _signRequest = new SignRequest();
-                    _signRequest.requestDate = DateTime.Now;
-                    _signRequest.ref_id = ref_id;
-                    _signRequest.filename_send = filename.FileName;
-                    _signRequest.filename_receive = signModel.filename;
-                    _signRequest.cmuaccount = _cmuaccount;
-                    DataCache.SignRequests.Add(_signRequest);
+                    SignRequest _signRequest = DataCache.SignRequests.Where(w => w.filename_receive == signModel.filename.Trim()).FirstOrDefault();
+                    if (_signRequest != null)
+                    {
+                        List<IFormFile> Attachment = new List<IFormFile>();
+                        Attachment.Add(_signRequest.file);
+                        _emailRepository.SendEmailAsync("POC_CMU_SIGN_API", signRequest.cmuaccount, "เอกสาร " + signRequest.filename_send + " digital signature เสร็จสิ้น ", "", Attachment);
+                    }
                     aPIModel.data = signModel;
                     aPIModel.title = "success";
                     return this.StatusCodeITSC(_cmuaccount, "sign", 200, aPIModel);
@@ -167,21 +167,17 @@ namespace CMU_SING_API.Controllers
                     fileName = fileName.Substring(fileName.IndexOf("/app") + 5, 44);
                 }
 
-                List<SignRequest> SignRequestList = DataCache.SignRequests;
-                if (SignRequestList.Count == 0)
-                {
-                    aPIModel.title = "SignRequestList =0 ";
-                    return this.StatusCodeITSC("SignRequestList =0 ", "webhook", 400, aPIModel);
-                }
-                foreach (SignRequest sign  in DataCache.SignRequests)
-                {
-                    debug = debug + sign.filename_receive;
-                }
                 SignRequest signRequest = DataCache.SignRequests.Where(w => w.filename_receive == fileName.Trim()).FirstOrDefault();
                 if (signRequest == null)
                 {
-                    aPIModel.title = "fileName not found";
-                    return this.StatusCodeITSC("fileName : " + fileName + " fname count:" + fname.Count + " debug :" + debug, "webhook", 400, aPIModel);
+                    SignRequest _signRequest = new SignRequest();
+                    _signRequest.requestDate = DateTime.Now;
+                    _signRequest.ref_id = "-";
+                    _signRequest.filename_send = "-";
+                    _signRequest.filename_receive = fileName;
+                    _signRequest.cmuaccount = "-";
+                    _signRequest.file = files;
+                    DataCache.SignRequests.Add(_signRequest);
                 }
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "webhooksing");
                 FileModel fileModel = this.SaveFile(path, files, 100);
@@ -190,9 +186,7 @@ namespace CMU_SING_API.Controllers
                     aPIModel.title = " Server Save File Error";
                     return this.StatusCodeITSC("fileName : " + fileName, "webhook", 503, aPIModel);
                 }
-                List<IFormFile> Attachment = new List<IFormFile>();
-                Attachment.Add(files);
-                _emailRepository.SendEmailAsync("POC_CMU_SIGN_API", signRequest.cmuaccount, "เอกสาร " + signRequest.filename_send + " digital signature เสร็จสิ้น ", "", Attachment);
+               
                 aPIModel.data = signRequest;
                 aPIModel.title = "success";
                 return this.StatusCodeITSC(signRequest.cmuaccount, "webhook", 200, aPIModel);

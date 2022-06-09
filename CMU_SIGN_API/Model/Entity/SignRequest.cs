@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,5 +17,6 @@ namespace CMU_SIGN_API.Model.Entity
         public DateTime? receiveDate { get; set; }
         public string filename_send { get; set; }
         public string filename_receive { get; set; }
+        public IFormFile file { get; set; }
     }
 }
