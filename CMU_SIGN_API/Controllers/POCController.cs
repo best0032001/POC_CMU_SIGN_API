@@ -53,7 +53,7 @@ namespace CMU_SING_API.Controllers
                     return this.StatusCodeITSC(_cmuaccount, "sign", 400, aPIModel);
                 }
 
-                SignRequest signRequest = _applicationDBContext.signRequests.Where(w => w.ref_id == ref_id).FirstOrDefault();
+                SignRequest signRequest = _applicationDBContext.SignRequests.Where(w => w.ref_id == ref_id).FirstOrDefault();
                 if (signRequest != null)
                 {
                     aPIModel.title = "ref_id ซ้ำ";
@@ -89,7 +89,7 @@ namespace CMU_SING_API.Controllers
                     _signRequest.filename_send = filename.FileName;
                     _signRequest.filename_receive = signModel.filename;
                     _signRequest.cmuaccount = _cmuaccount;
-                    _applicationDBContext.signRequests.Add(_signRequest);
+                    _applicationDBContext.SignRequests.Add(_signRequest);
                     _applicationDBContext.SaveChanges();
                     aPIModel.data = signModel;
                     aPIModel.title = "success";
@@ -109,16 +109,47 @@ namespace CMU_SING_API.Controllers
         }
 
         [HttpPost("v1/webhook")]
-        public async Task<IActionResult> webhook([FromQuery]String ref_id, [FromQuery] String filename)
+        public async Task<IActionResult> webhook(IFormFile files, IFormCollection fname)
         {
-            MemoryStream stream = new MemoryStream();
-            await Request.Body.CopyToAsync(stream);
-            var file = new FormFile(stream, 0, stream.Length, null, filename)
+            //MemoryStream stream = new MemoryStream();
+            //await Request.Body.CopyToAsync(stream);
+            //var file = new FormFile(stream, 0, stream.Length, null, "name.pdf")
+            //{
+            //    Headers = new HeaderDictionary(),
+            //    ContentType = "application/pdf"
+            //};
+            String _fname = "";
+            try
             {
-                Headers = new HeaderDictionary(),
-                ContentType = "application/pdf"
-            };
-            return Ok();
+                _fname = fname["fname"];
+                APIModel aPIModel = new APIModel();
+                String fileName = _fname;
+                SignRequest signRequest = _applicationDBContext.SignRequests.Where(w => w.filename_receive == fileName).FirstOrDefault();
+                if (signRequest == null)
+                {
+                    aPIModel.title = "fileName not found";
+                    return this.StatusCodeITSC("fileName : " + fileName, "webhook", 400, aPIModel);
+                }
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "webhooksing");
+                FileModel fileModel = this.SaveFile(path, files, 100);
+                if (fileModel.isSave == false)
+                {
+                    aPIModel.title = " Server Save File Error";
+                    return this.StatusCodeITSC("fileName : " + fileName, "webhook", 503, aPIModel);
+                }
+                List<IFormFile> Attachment = new List<IFormFile>();
+                Attachment.Add(files);
+                _emailRepository.SendEmailAsync("POC_CMU_SIGN_API", signRequest.cmuaccount, "เอกสาร " + signRequest.filename_send + " digital signature เสร็จสิ้น ", "", Attachment);
+                aPIModel.data = signRequest;
+                aPIModel.title = "success";
+                return this.StatusCodeITSC(signRequest.cmuaccount, "webhook", 200, aPIModel);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusErrorITSC(_fname, "webhook", ex);
+            }
+
+
         }
     }
 }

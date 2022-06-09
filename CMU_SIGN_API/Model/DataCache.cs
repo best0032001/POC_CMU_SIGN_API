@@ -7,7 +7,7 @@ namespace CMU_SING_API.Model
 {
     public class DataCache
     {
-        public static String cmuitaccount_basicinfo = "cmuitaccount.basicinfo";
+        public static String cmuitaccount_basicinfo = "mishr.self.basicinfo";
         public static String authorization_code = "authorization_code";
     }
 }

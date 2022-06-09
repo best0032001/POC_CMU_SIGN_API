@@ -129,5 +129,72 @@ namespace CMU_SING_API.Controllers
             _logger.LogInformation(log.logdate + " " + Newtonsoft.Json.JsonConvert.SerializeObject(log));
             return this.StatusCode(code, aPIModel);
         }
+
+        protected FileModel SaveFile(String folderName, IFormFile formFile, Int32 maxMb)
+        {
+
+            FileModel fileModel = new FileModel();
+            String fileName = "";
+            try
+            {
+                var file = formFile;
+                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+                if (file.Length > 0)
+                {
+
+                    int MaxContentLength = 1024 * 1024 * 20 * maxMb; //Size = 5 MB  
+                    IList<string> AllowedFileExtensions = new List<string> { ".heic", ".jfif", ".jpeg", ".jpg", ".gif", ".png", ".docx", ".doc", ".pdf", ".xlsx", ".xls", ".csv" };
+                    var ext = formFile.FileName.Substring(formFile.FileName.LastIndexOf('.'));
+                    var extension = ext.ToLower();
+                    if (!AllowedFileExtensions.Contains(extension))
+                    {
+                        fileModel.isSave = false;
+                        fileModel.fileName = "no save - Please Upload  type .heic,.jfif,.jpg,.gif,.png,.docx,.doc,.pdf,.xlsx,.xls,.csv";
+                        return fileModel;
+                    }
+                    else if (formFile.Length > MaxContentLength)
+                    {
+
+                        fileModel.isSave = false;
+                        fileModel.fileName = "no save - MaxContentLength" + maxMb + "Mb";
+                        return fileModel;
+                    }
+                    fileName = formFile.FileName;
+                    fileModel.fullPath = Path.Combine(pathToSave, fileName);
+                    fileModel.dbPath = Path.Combine(folderName, fileName);
+                    fileModel.fileName = fileName;
+                    fileModel.isSave = false;
+                    using (var stream = new FileStream(fileModel.fullPath, FileMode.Create))
+                    {
+                        file.CopyTo(stream);
+                        fileModel.isSave = true;
+                    }
+                    if (fileModel.isSave == false)
+                    {
+                        fileModel.fileName = "no file";
+                    }
+                }
+                else
+                {
+                    fileModel.isSave = false;
+                    fileModel.fileName = "no file";
+                }
+            }
+            catch (Exception ex)
+            {
+                fileModel.isSave = false;
+                if (ex.InnerException != null)
+                {
+                    fileModel.error = ex.Message + " " + ex.StackTrace + " " + ex.InnerException.StackTrace;
+                }
+                else
+                {
+                    fileModel.error = ex.Message + " " + ex.StackTrace;
+                }
+                fileModel.fileName = "error";
+            }
+
+            return fileModel;
+        }
     }
 }
