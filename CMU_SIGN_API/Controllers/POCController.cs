@@ -101,7 +101,7 @@ namespace CMU_SING_API.Controllers
                     {
                         List<IFormFile> Attachment = new List<IFormFile>();
                         Attachment.Add(_signRequest.file);
-                        _emailRepository.SendEmailAsync("POC_CMU_SIGN_API", _cmuaccount, "เอกสาร " + filename.FileName + " digital signature เสร็จสิ้น ", "", Attachment);
+                        await _emailRepository.SendEmailAsync("POC_CMU_SIGN_API", _cmuaccount, "เอกสาร " + filename.FileName + " digital signature เสร็จสิ้น ", "", Attachment);
                     }
                     aPIModel.data = signModel;
                     aPIModel.title = "success";
@@ -121,16 +121,8 @@ namespace CMU_SING_API.Controllers
         }
 
         [HttpPost("v1/webhook")]
-        public async Task<IActionResult> webhook(IFormFile files, IFormCollection fname)
+        public async Task<IActionResult> webhook(IFormFile files)
         {
-            //MemoryStream stream = new MemoryStream();
-            //await Request.Body.CopyToAsync(stream);
-            //var file = new FormFile(stream, 0, stream.Length, null, "name.pdf")
-            //{
-            //    Headers = new HeaderDictionary(),
-            //    ContentType = "application/pdf"
-            //};
-            String _fname = "";
             try
             {
                 APIModel aPIModel = new APIModel();
@@ -139,63 +131,34 @@ namespace CMU_SING_API.Controllers
                     aPIModel.title = "files =null ";
                     return this.StatusCodeITSC("files =null ", "webhook", 400, aPIModel);
                 }
-                if (files.Length==0)
+                if (files.Length == 0)
                 {
                     aPIModel.title = "files.Length==0 ";
                     return this.StatusCodeITSC("files.Length==0", "webhook", 400, aPIModel);
                 }
-                String debug = "";
-                List<String> list = fname.Keys.ToList();
-                foreach (String text in list)
-                {
-                    debug = debug + text;
-                }
-                _fname = fname["name"];
-             
-                String fileName = _fname;
-
-                if (fileName.IndexOf("/app") > 0)
-                {
-                    fileName = fileName.Substring(fileName.IndexOf("/app") + 5, 44);
-                }
-
-                SignRequest _signRequest = DataCache.SignRequests.Where(w => w.filename_receive == files.FileName).FirstOrDefault();
-                if (_signRequest == null)
-                {
-                    _signRequest = new SignRequest();
-                    _signRequest.requestDate = DateTime.Now;
-                    _signRequest.ref_id = "-";
-                    _signRequest.filename_send = "-";
-                    _signRequest.filename_receive = files.FileName;
-                    _signRequest.cmuaccount = "-";
-                    _signRequest.file = files;
-                    DataCache.SignRequests.Add(_signRequest);
-                    aPIModel.data = _signRequest;
-                }
+                SignRequest _signRequest = new SignRequest();
+                _signRequest = new SignRequest();
+                _signRequest.requestDate = DateTime.Now;
+                _signRequest.ref_id = "-";
+                _signRequest.filename_send = "-";
+                _signRequest.filename_receive = files.FileName;
+                _signRequest.cmuaccount = "-";
+                _signRequest.file = files;
+                DataCache.SignRequests.Add(_signRequest);
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "webhooksing");
                 FileModel fileModel = this.SaveFile(path, files, 100);
                 if (fileModel.isSave == false)
                 {
                     aPIModel.title = " Server Save File Error";
-                    return this.StatusCodeITSC("fileName : " + fileName, "webhook", 503, aPIModel);
+                    return this.StatusCodeITSC("fileName : " + files.FileName, "webhook", 503, aPIModel);
                 }
                 aPIModel.title = "success";
                 return this.StatusCodeITSC("-", "webhook", 200, aPIModel);
             }
             catch (Exception ex)
             {
-                return this.StatusErrorITSC(_fname, "webhook", ex);
+                return this.StatusErrorITSC(files.FileName, "webhook", ex);
             }
-
-
-        }
-
-
-        [HttpPost("v1/test")]
-        public async Task<IActionResult> test(IFormFile pdf)
-        {
-
-            return Ok();
         }
     }
 }
