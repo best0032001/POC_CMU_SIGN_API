@@ -65,7 +65,7 @@ namespace CMU_SING_API.Controllers
                 filename.CopyTo(stream);
                 var fileStreamContent = new StreamContent(stream);
                 multipartFormContent.Add(fileStreamContent, name: "pdf", fileName: filename.FileName);
-                multipartFormContent.Add(new StringContent("accesstoken"), this._accesstoken);
+                multipartFormContent.Add(new StringContent("accesstoken"), getTokenFormHeader());
                 multipartFormContent.Add(new StringContent("pass_phase"), pass_phase);
                 multipartFormContent.Add(new StringContent("ref_id"), ref_id);
                 multipartFormContent.Add(new StringContent("sigfield"), sigfield);
