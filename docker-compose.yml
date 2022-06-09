@@ -7,8 +7,8 @@ services:
                 ports:
                         - "60:80"
                 volumes:
-                        - /home/cnoc/logsSingAPI:/app/logs
-                        - /home/cnoc/webhookSing:/app/webhooksing
+                        - /home/cnoc/POC/logsSingAPI:/app/logs
+                        - /home/cnoc/POC/webhookSing:/app/webhooksing
                 restart: always
                 env_file:
                         - .env
