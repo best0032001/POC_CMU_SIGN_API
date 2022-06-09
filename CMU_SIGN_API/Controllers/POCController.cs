@@ -59,12 +59,13 @@ namespace CMU_SING_API.Controllers
                     return this.StatusCodeITSC(_cmuaccount, "sign", 400, aPIModel);
                 }
 
+                String _filename = filename.FileName;
                 String webhook = Environment.GetEnvironmentVariable("WEBHOOK");
                 MultipartFormDataContent multipartFormContent = new MultipartFormDataContent();
                 Stream stream = new MemoryStream();
                 filename.CopyTo(stream);
                 var fileStreamContent = new StreamContent(stream);
-                multipartFormContent.Add(fileStreamContent, name: "pdf");
+                multipartFormContent.Add(fileStreamContent, name: "pdf", fileName: _filename);
                 multipartFormContent.Add(new StringContent(getTokenFormHeader()), "accesstoken");
                 multipartFormContent.Add(new StringContent(pass_phase), "pass_phase");
                 multipartFormContent.Add(new StringContent(ref_id), "ref_id");
