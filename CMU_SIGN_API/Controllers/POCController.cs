@@ -39,19 +39,13 @@ namespace CMU_SING_API.Controllers
             APIModel aPIModel = new APIModel();
             try
             {
-
                 byte[] data;
                 using (var br = new BinaryReader(filename.OpenReadStream()))
                     data = br.ReadBytes((int)filename.OpenReadStream().Length);
-
                 ByteArrayContent bytes = new ByteArrayContent(data);
-
-
                 String ClientID = Environment.GetEnvironmentVariable("SINGClientID");
-
                 _cmuaccount = await this.getCmuaccount();
                 if (_cmuaccount == "unauthorized") { return Unauthorized(); }
-
                 String ext = filename.FileName.Substring(filename.FileName.LastIndexOf('.'));
 
                 if (ext.ToLower() != ".pdf")
@@ -62,11 +56,7 @@ namespace CMU_SING_API.Controllers
                 String _filename = filename.FileName;
                 String webhook = Environment.GetEnvironmentVariable("WEBHOOK");
                 MultipartFormDataContent multipartFormContent = new MultipartFormDataContent();
-                //Stream stream = new MemoryStream();
-                //filename.CopyTo(stream);
-                //var fileStreamContent = new StreamContent(stream);
                 bytes.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
-
                 multipartFormContent.Add(bytes, name: "pdf", fileName: _filename);
                 multipartFormContent.Add(new StringContent(getTokenFormHeader()), "accesstoken");
                 multipartFormContent.Add(new StringContent(pass_phase), "pass_phase");
@@ -74,11 +64,7 @@ namespace CMU_SING_API.Controllers
                 multipartFormContent.Add(new StringContent(sigfield), "sigfield");
                 multipartFormContent.Add(new StringContent(reason), "reason");
                 multipartFormContent.Add(new StringContent(webhook), "webhook");
-
-
-
                 String SIGNAPI = Environment.GetEnvironmentVariable("SINGAPI");
-
                 HttpClient httpClient = _clientFactory.CreateClient();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + ClientID);
@@ -86,8 +72,6 @@ namespace CMU_SING_API.Controllers
                 var responseString = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
                 {
-
-
                     responseString = await response.Content.ReadAsStringAsync();
                     SignModel signModel = JsonConvert.DeserializeObject<SignModel>(responseString);
 
@@ -96,13 +80,12 @@ namespace CMU_SING_API.Controllers
                         aPIModel.title = responseString;
                         return this.StatusCodeITSC(_cmuaccount, "sign", 400, aPIModel);
                     }
-                    SignRequest _signRequest = DataCache.SignRequests.Where(w => w.filename_receive == signModel.filename.Trim()).FirstOrDefault();
-                    if (_signRequest != null)
-                    {
-                        List<IFormFile> Attachment = new List<IFormFile>();
-                        Attachment.Add(_signRequest.file);
-                        await _emailRepository.SendEmailAsync("POC_CMU_SIGN_API", _cmuaccount, "เอกสาร " + filename.FileName + " digital signature เสร็จสิ้น ", "", Attachment);
-                    }
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), "webhooksing", signModel.filename);
+                    var memory = this.loadFile(path);
+                    List<IFormFile> Attachment = new List<IFormFile>();
+                    var formFile = new FormFile(memory, 0, memory.Length, signModel.filename, signModel.filename);
+                    Attachment.Add(formFile);
+                    _emailRepository.SendEmailAsync("POC_CMU_SIGN_API", _cmuaccount, "เอกสาร " + filename.FileName + " digital signature เสร็จสิ้น ", "", Attachment);
                     aPIModel.data = signModel;
                     aPIModel.title = "success";
                     return this.StatusCodeITSC(_cmuaccount, "sign", 200, aPIModel);
@@ -121,7 +104,7 @@ namespace CMU_SING_API.Controllers
         }
 
         [HttpPost("v1/webhook")]
-        public async Task<IActionResult> webhook(IFormFile files, IFormCollection fname)
+        public async Task<IActionResult> webhook(IFormFile files)
         {
             try
             {
@@ -136,14 +119,6 @@ namespace CMU_SING_API.Controllers
                     aPIModel.title = "files.Length==0 ";
                     return this.StatusCodeITSC("files.Length==0", "webhook", 400, aPIModel);
                 }
-                SignRequest _signRequest = new SignRequest();
-                _signRequest.requestDate = DateTime.Now;
-                _signRequest.ref_id = "-";
-                _signRequest.filename_send = "-";
-                _signRequest.filename_receive = files.FileName;
-                _signRequest.cmuaccount = "-";
-                _signRequest.file = files;
-                DataCache.SignRequests.Add(_signRequest);
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "webhooksing");
                 FileModel fileModel = this.SaveFile(path, files, 100);
                 if (fileModel.isSave == false)

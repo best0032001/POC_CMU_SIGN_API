@@ -196,5 +196,18 @@ namespace CMU_SING_API.Controllers
 
             return fileModel;
         }
+        protected MemoryStream loadFile(String fullPath)
+        {
+            try
+            {
+                var memory = new MemoryStream();
+                using (var stream = new FileStream(fullPath, FileMode.Open))
+                {
+                    stream.CopyTo(memory);
+                }
+                return memory;
+            }
+            catch { return null; }
+        }
     }
 }
