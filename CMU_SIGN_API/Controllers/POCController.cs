@@ -57,13 +57,14 @@ namespace CMU_SING_API.Controllers
                 String webhook = Environment.GetEnvironmentVariable("WEBHOOK");
                 MultipartFormDataContent multipartFormContent = new MultipartFormDataContent();
                 bytes.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
-                multipartFormContent.Add(bytes, name: "pdf", fileName: _filename);
+                multipartFormContent.Add(bytes, name: "file", fileName: _filename);
                 multipartFormContent.Add(new StringContent(getTokenFormHeader()), "accesstoken");
-                multipartFormContent.Add(new StringContent(pass_phase), "pass_phase");
+                //multipartFormContent.Add(new StringContent(pass_phase), "pass_phase");
                 multipartFormContent.Add(new StringContent(ref_id), "ref_id");
-                multipartFormContent.Add(new StringContent(sigfield), "sigfield");
-                multipartFormContent.Add(new StringContent(reason), "reason");
+                //multipartFormContent.Add(new StringContent(sigfield), "sigfield");
+                //multipartFormContent.Add(new StringContent(reason), "reason");
                 multipartFormContent.Add(new StringContent(webhook), "webhook");
+                multipartFormContent.Add(new StringContent("oauth"), "type");
                 String SIGNAPI = Environment.GetEnvironmentVariable("SINGAPI");
                 HttpClient httpClient = _clientFactory.CreateClient();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
