@@ -120,30 +120,30 @@ namespace CMU_SING_API.Controllers
         }
 
         [HttpPost("v1/webhook")]
-        public async Task<IActionResult> webhook(IFormFile files)
+        public async Task<IActionResult> webhook(IFormFile file)
         {
             try
             {
                 APIModel aPIModel = new APIModel();
-                if (files == null)
+                if (file == null)
                 {
                     aPIModel.title = "files =null ";
                     return this.StatusCodeITSC("files =null ", "webhook", 400, aPIModel);
                 }
-                if (files.Length == 0)
+                if (file.Length == 0)
                 {
                     aPIModel.title = "files.Length==0 ";
                     return this.StatusCodeITSC("files.Length==0", "webhook", 400, aPIModel);
                 }
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "webhooksing");
-                FileModel fileModel = this.SaveFile(path, files, 100);
+                FileModel fileModel = this.SaveFile(path, file, 100);
                 if (fileModel.isSave == false)
                 {
                     aPIModel.title = " Server Save File Error";
-                    return this.StatusCodeITSC("fileName : " + files.FileName, "webhook", 503, aPIModel);
+                    return this.StatusCodeITSC("fileName : " + file.FileName, "webhook", 503, aPIModel);
                 }
-                aPIModel.title = "success files name"+ files.FileName;
-                return this.StatusCodeITSC("success files name" + files.FileName, "webhook", 200, aPIModel);
+                aPIModel.title = "success files name"+ file.FileName;
+                return this.StatusCodeITSC("success files name" + file.FileName, "webhook", 200, aPIModel);
             }
             catch (Exception ex)
             {
