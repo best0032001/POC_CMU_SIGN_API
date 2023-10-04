@@ -15,6 +15,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace CMU_SING_API.Controllers
@@ -33,7 +34,7 @@ namespace CMU_SING_API.Controllers
         }
 
         [HttpPost("v1/sign")]
-        public async Task<IActionResult> sign(IFormFile filename, [FromHeader] String pass_phase, [FromHeader] String ref_id, [FromHeader] String sigfield, [FromHeader] String reason)
+        public async Task<IActionResult> sign(IFormFile filename, IFormFile imagename, [FromHeader] String pass_phase, [FromHeader] String ref_id, [FromHeader] String sigfield, [FromHeader] String reason)
         {
             String _cmuaccount = "";
             APIModel aPIModel = new APIModel();
@@ -42,7 +43,13 @@ namespace CMU_SING_API.Controllers
                 byte[] data;
                 using (var br = new BinaryReader(filename.OpenReadStream()))
                     data = br.ReadBytes((int)filename.OpenReadStream().Length);
-                ByteArrayContent bytes = new ByteArrayContent(data);
+
+                byte[] dataImage;
+                using (var br = new BinaryReader(imagename.OpenReadStream()))
+                    dataImage = br.ReadBytes((int)imagename.OpenReadStream().Length);
+
+                ByteArrayContent bytesFile = new ByteArrayContent(data);
+                ByteArrayContent bytesImage = new ByteArrayContent(dataImage);
                 String ClientID = Environment.GetEnvironmentVariable("SINGClientID");
                 _cmuaccount = await this.getCmuaccount();
                 if (_cmuaccount == "unauthorized") { return Unauthorized(); }
@@ -56,19 +63,28 @@ namespace CMU_SING_API.Controllers
                 String _filename = filename.FileName;
                 String webhook = Environment.GetEnvironmentVariable("WEBHOOK");
                 MultipartFormDataContent multipartFormContent = new MultipartFormDataContent();
-                bytes.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
-                multipartFormContent.Add(bytes, name: "file", fileName: _filename);
-                multipartFormContent.Add(new StringContent(getTokenFormHeader()), "accesstoken");
+                bytesFile.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+                bytesImage.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+                multipartFormContent.Add(bytesFile, name: "file", fileName: _filename);
+                multipartFormContent.Add(bytesImage, name: "img", fileName: imagename.FileName);
+                //multipartFormContent.Add(new StringContent(getTokenFormHeader()), "accesstoken");
                 //multipartFormContent.Add(new StringContent(pass_phase), "pass_phase");
                 multipartFormContent.Add(new StringContent(ref_id), "ref_id");
                 //multipartFormContent.Add(new StringContent(sigfield), "sigfield");
                 //multipartFormContent.Add(new StringContent(reason), "reason");
                 multipartFormContent.Add(new StringContent(webhook), "webhook");
                 multipartFormContent.Add(new StringContent("oauth"), "type");
+                multipartFormContent.Add(new StringContent("100"), "x1");
+                multipartFormContent.Add(new StringContent("200"), "x2");
+                multipartFormContent.Add(new StringContent("100"), "y1");
+                multipartFormContent.Add(new StringContent("200"), "y2");
+                multipartFormContent.Add(new StringContent("1"), "page");
+                multipartFormContent.Add(new StringContent("0"), "rotate");
                 String SIGNAPI = Environment.GetEnvironmentVariable("SINGAPI");
                 HttpClient httpClient = _clientFactory.CreateClient();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + ClientID);
+                httpClient.DefaultRequestHeaders.Add("accesstoken", getTokenFormHeader());
                 HttpResponseMessage response = await httpClient.PostAsync(SIGNAPI, multipartFormContent);
                 var responseString = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
