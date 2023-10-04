@@ -97,12 +97,12 @@ namespace CMU_SING_API.Controllers
                         aPIModel.title = responseString;
                         return this.StatusCodeITSC(_cmuaccount, "sign", 400, aPIModel);
                     }
-                    var path = Path.Combine(Directory.GetCurrentDirectory(), "webhooksing", signModel.filename);
-                    var memory = this.loadFile(path);
-                    List<IFormFile> Attachment = new List<IFormFile>();
-                    var formFile = new FormFile(memory, 0, memory.Length, signModel.filename, signModel.filename);
-                    Attachment.Add(formFile);
-                    _emailRepository.SendEmailAsync("POC_CMU_SIGN_API", _cmuaccount, "เอกสาร " + filename.FileName + " digital signature เสร็จสิ้น ", "", Attachment);
+                    //var path = Path.Combine(Directory.GetCurrentDirectory(), "webhooksing", signModel.filename);
+                    //var memory = this.loadFile(path);
+                    //List<IFormFile> Attachment = new List<IFormFile>();
+                    //var formFile = new FormFile(memory, 0, memory.Length, signModel.filename, signModel.filename);
+                    //Attachment.Add(formFile);
+                    //_emailRepository.SendEmailAsync("POC_CMU_SIGN_API", _cmuaccount, "เอกสาร " + filename.FileName + " digital signature เสร็จสิ้น ", "", Attachment);
                     aPIModel.data = signModel;
                     aPIModel.title = "success";
                     return this.StatusCodeITSC(_cmuaccount, "sign", 200, aPIModel);
