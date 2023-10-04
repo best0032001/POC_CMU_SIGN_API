@@ -130,7 +130,7 @@ namespace CMU_SING_API.Controllers
             return this.StatusCode(code, aPIModel);
         }
 
-        protected FileModel SaveFile(String folderName, IFormFile formFile, Int32 maxMb)
+        protected FileModel SaveFile(String folderName, IFormFile formFile, Int32 maxMb,String ref_id)
         {
 
             FileModel fileModel = new FileModel();
@@ -159,7 +159,7 @@ namespace CMU_SING_API.Controllers
                         fileModel.fileName = "no save - MaxContentLength" + maxMb + "Mb";
                         return fileModel;
                     }
-                    fileName = formFile.FileName;
+                    fileName = ref_id + extension;
                     fileModel.fullPath = Path.Combine(pathToSave, fileName);
                     fileModel.dbPath = Path.Combine(folderName, fileName);
                     fileModel.fileName = fileName;
