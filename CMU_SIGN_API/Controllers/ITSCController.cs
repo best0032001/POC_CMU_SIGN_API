@@ -114,8 +114,11 @@ namespace CMU_SING_API.Controllers
         }
         protected ObjectResult StatusCodeITSC(String cmuaccount, String action, Int32 code, APIModel aPIModel)
         {
+
+            string forwarded_for = base.Request.Headers["x-forwarded-for"];
+            forwarded_for = forwarded_for.Split(',')[0];
             LogModel log = new LogModel();
-            log.ClientIp = "-";
+            log.ClientIp = forwarded_for;
             log.appID = "-";
             log.appIndex = "-";
             log.cmuaccount = cmuaccount;
@@ -130,7 +133,7 @@ namespace CMU_SING_API.Controllers
             return this.StatusCode(code, aPIModel);
         }
 
-        protected FileModel SaveFile(String folderName, IFormFile formFile, Int32 maxMb,String ref_id)
+        protected FileModel SaveFile(String folderName, IFormFile formFile, Int32 maxMb, String ref_id)
         {
 
             FileModel fileModel = new FileModel();
